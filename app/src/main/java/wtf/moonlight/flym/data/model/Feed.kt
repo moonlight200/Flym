@@ -1,4 +1,4 @@
-package wtf.moonlight.flym.data.entities
+package wtf.moonlight.flym.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
@@ -12,10 +12,10 @@ import kotlin.math.abs
 )
 data class Feed(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "feedId") val id: Long = 0L,
-    val link: String = "",
-    val title: String? = null,
-    val imageLink: String? = null,
+    @ColumnInfo(name = "feed_id") val id: Long = 0L,
+    @ColumnInfo(name = "link") val link: String = "",
+    @ColumnInfo(name = "title") val title: String? = null,
+    @ColumnInfo(name = "image_link") val imageLink: String? = null,
     @Embedded val settings: FeedSettings = FeedSettings()
 ) {
     companion object {
@@ -57,5 +57,5 @@ data class Feed(
 }
 
 data class FeedSettings(
-    @ColumnInfo(name = "retrieveFullText") val retrieveFullText: Boolean = false
+    @ColumnInfo(name = "retrieve_full_text") val retrieveFullText: Boolean = false
 )

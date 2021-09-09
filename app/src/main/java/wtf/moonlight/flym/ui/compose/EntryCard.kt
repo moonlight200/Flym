@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.fred.feedex.R
-import wtf.moonlight.flym.data.entities.EntryCardData
+import wtf.moonlight.flym.data.model.EntryCardData
 import wtf.moonlight.flym.ui.theme.FlymTheme
 
 @Composable

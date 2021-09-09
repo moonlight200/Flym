@@ -1,4 +1,4 @@
-package wtf.moonlight.flym.data.entities
+package wtf.moonlight.flym.data.model
 
 data class EntryCardData(
     val feedId: Long,

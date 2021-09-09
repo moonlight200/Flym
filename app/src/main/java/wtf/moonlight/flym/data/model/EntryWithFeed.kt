@@ -1,4 +1,4 @@
-package wtf.moonlight.flym.data.entities
+package wtf.moonlight.flym.data.model
 
 import android.content.Context
 import androidx.room.Embedded
@@ -8,8 +8,8 @@ data class EntryWithFeed(
     @Embedded
     val entry: Entry,
     @Relation(
-        parentColumn = "feedId",
-        entityColumn = "feedId"
+        parentColumn = "feed_id",
+        entityColumn = "feed_id"
     )
     val feed: Feed
 ) {
