@@ -15,6 +15,12 @@ val typography = Typography(
     h3 = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Light,
-        fontSize = 42.sp
+        fontSize = 48.sp,
+        letterSpacing = 0.5.sp
+    ),
+    overline = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Light,
+        fontSize = 12.sp
     )
 )
