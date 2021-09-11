@@ -21,9 +21,11 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import dagger.hilt.android.HiltAndroidApp
+import net.fred.feedex.BuildConfig
 import net.frju.flym.data.AppDatabase
 import net.frju.flym.data.utils.PrefConstants
 import net.frju.flym.utils.putPrefBoolean
+import timber.log.Timber
 
 @HiltAndroidApp
 class FlymApplication : Application() {
@@ -43,6 +45,10 @@ class FlymApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         context = applicationContext
         db = AppDatabase.createDatabase(context)
