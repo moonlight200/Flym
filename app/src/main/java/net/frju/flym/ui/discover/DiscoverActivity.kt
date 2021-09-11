@@ -10,7 +10,6 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
 import net.fred.feedex.R
-import net.frju.flym.App
 import net.frju.flym.data.entities.Feed
 import net.frju.flym.data.entities.SearchFeedResult
 import net.frju.flym.utils.setupTheme
@@ -21,8 +20,8 @@ import org.jetbrains.anko.sdk21.listeners.onEditorAction
 import org.jetbrains.anko.sdk21.listeners.textChangedListener
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.uiThread
-import java.util.Timer
-import java.util.TimerTask
+import wtf.moonlight.flym.FlymApplication
+import java.util.*
 
 
 class DiscoverActivity : AppCompatActivity(), FeedManagementInterface {
@@ -136,7 +135,7 @@ class DiscoverActivity : AppCompatActivity(), FeedManagementInterface {
     override fun addFeed(view: View, title: String, link: String) {
         doAsync {
             val feedToAdd = Feed(link = link, title = title)
-            App.db.feedDao().insert(feedToAdd)
+            FlymApplication.db.feedDao().insert(feedToAdd)
             uiThread {
                 view.snackbar(R.string.feed_added)
             }
@@ -145,7 +144,7 @@ class DiscoverActivity : AppCompatActivity(), FeedManagementInterface {
 
     override fun deleteFeed(view: View, feed: SearchFeedResult) {
         doAsync {
-            App.db.feedDao().deleteByLink(feed.link)
+            FlymApplication.db.feedDao().deleteByLink(feed.link)
         }
     }
 

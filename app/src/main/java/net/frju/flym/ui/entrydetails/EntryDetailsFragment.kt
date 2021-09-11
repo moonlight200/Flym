@@ -38,7 +38,6 @@ import kotlinx.android.synthetic.main.fragment_entry_details.*
 import me.thanel.swipeactionview.SwipeActionView
 import me.thanel.swipeactionview.SwipeGestureListener
 import net.fred.feedex.R
-import net.frju.flym.App
 import net.frju.flym.data.entities.EntryWithFeed
 import net.frju.flym.data.utils.PrefConstants
 import net.frju.flym.data.utils.PrefConstants.ENABLE_SWIPE_ENTRY
@@ -57,6 +56,7 @@ import org.jetbrains.anko.support.v4.share
 import org.jetbrains.anko.support.v4.toast
 import org.jetbrains.anko.uiThread
 import org.jetbrains.annotations.NotNull
+import wtf.moonlight.flym.FlymApplication
 
 
 class EntryDetailsFragment : Fragment() {
@@ -197,7 +197,7 @@ class EntryDetailsFragment : Fragment() {
         isMobilizingLiveData?.removeObservers(viewLifecycleOwner)
         refresh_layout.isRefreshing = false
 
-        isMobilizingLiveData = App.db.taskDao().observeItemMobilizationTasksCount(entryId)
+        isMobilizingLiveData = FlymApplication.db.taskDao().observeItemMobilizationTasksCount(entryId)
         isMobilizingLiveData?.observe(viewLifecycleOwner, { count ->
             if (count ?: 0 > 0) {
                 isMobilizing = true
@@ -210,7 +210,7 @@ class EntryDetailsFragment : Fragment() {
             } else {
                 if (isMobilizing) {
                     doAsync {
-                        App.db.entryDao().findByIdWithFeed(entryId)?.let { newEntry ->
+                        FlymApplication.db.entryDao().findByIdWithFeed(entryId)?.let { newEntry ->
                             uiThread {
                                 entryWithFeed = newEntry
                                 entry_view.setEntry(entryWithFeed, true)
@@ -268,7 +268,7 @@ class EntryDetailsFragment : Fragment() {
                             }
 
                             doAsync {
-                                App.db.entryDao().update(entryWithFeed.entry)
+                                FlymApplication.db.entryDao().update(entryWithFeed.entry)
                             }
                         }
                         R.id.menu_entry_details__open_browser -> {
@@ -287,7 +287,7 @@ class EntryDetailsFragment : Fragment() {
                         }
                         R.id.menu_entry_details__mark_as_unread -> {
                             doAsync {
-                                App.db.entryDao().markAsUnread(listOf(entryId))
+                                FlymApplication.db.entryDao().markAsUnread(listOf(entryId))
                             }
                             if (activity?.containers_layout?.hasTwoColumns() != true) {
                                 activity?.onBackPressed()
@@ -348,8 +348,8 @@ class EntryDetailsFragment : Fragment() {
         arguments?.putStringArrayList(ARG_ALL_ENTRIES_IDS, ArrayList(allEntryIds))
 
         doAsync {
-            App.db.entryDao().findByIdWithFeed(entryId)?.let { entry ->
-                val feed = App.db.feedDao().findById(entry.entry.feedId)
+            FlymApplication.db.entryDao().findByIdWithFeed(entryId)?.let { entry ->
+                val feed = FlymApplication.db.feedDao().findById(entry.entry.feedId)
                 entryWithFeed = entry
                 preferFullText = feed?.retrieveFullText ?: true
                 isMobilizing = false
@@ -363,7 +363,7 @@ class EntryDetailsFragment : Fragment() {
                 }
             }
 
-            App.db.entryDao().markAsRead(listOf(entryId))
+            FlymApplication.db.entryDao().markAsRead(listOf(entryId))
         }
     }
 }

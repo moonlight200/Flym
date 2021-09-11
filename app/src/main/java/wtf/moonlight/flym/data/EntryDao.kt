@@ -3,7 +3,7 @@ package wtf.moonlight.flym.data
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
-import net.frju.flym.data.entities.Entry
+import wtf.moonlight.flym.data.model.Entry
 
 @Dao
 interface EntryDao {

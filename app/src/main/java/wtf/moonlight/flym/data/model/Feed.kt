@@ -8,7 +8,7 @@ import kotlin.math.abs
 
 @Entity(
     tableName = "feeds",
-    ignoredColumns = ["color", "initials"]
+    ignoredColumns = ["initials\$delegate"]
 )
 data class Feed(
     @PrimaryKey(autoGenerate = true)

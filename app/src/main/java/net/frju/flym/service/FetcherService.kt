@@ -35,8 +35,6 @@ import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
 import net.dankito.readability4j.extended.Readability4JExtended
 import net.fred.feedex.R
-import net.frju.flym.App
-import net.frju.flym.App.Companion.context
 import net.frju.flym.data.entities.Entry
 import net.frju.flym.data.entities.Feed
 import net.frju.flym.data.entities.Task
@@ -52,6 +50,8 @@ import okio.buffer
 import okio.sink
 import org.jetbrains.anko.*
 import org.jsoup.Jsoup
+import wtf.moonlight.flym.FlymApplication
+import wtf.moonlight.flym.FlymApplication.Companion.context
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -87,7 +87,7 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
         private const val THREAD_NUMBER = 3
         private const val MAX_TASK_ATTEMPT = 3
 
-        private val IMAGE_FOLDER_FILE = File(App.context.cacheDir, "images/")
+        private val IMAGE_FOLDER_FILE = File(FlymApplication.context.cacheDir, "images/")
         private val IMAGE_FOLDER = IMAGE_FOLDER_FILE.absolutePath + '/'
         private const val TEMP_PREFIX = "TEMP__"
         private const val ID_SEPARATOR = "__"
@@ -138,10 +138,10 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
                     val acceptMinDate = max(readEntriesKeepDate, unreadEntriesKeepDate)
 
                     var newCount = 0
-                    if (feedId == 0L || App.db.feedDao().findById(feedId)?.isGroup == true) {
+                    if (feedId == 0L || FlymApplication.db.feedDao().findById(feedId)?.isGroup == true) {
                         newCount = refreshFeeds(feedId, acceptMinDate)
                     } else {
-                        App.db.feedDao().findById(feedId)?.let {
+                        FlymApplication.db.feedDao().findById(feedId)?.let {
                             try {
                                 newCount = refreshFeed(it, acceptMinDate)
                             } catch (e: Exception) {
@@ -166,7 +166,7 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
 
             if (shouldDisplayNotification && itemCount > 0) {
                 if (!MainActivity.isInForeground) {
-                    val unread = App.db.entryDao().countUnread
+                    val unread = FlymApplication.db.entryDao().countUnread
 
                     if (unread > 0) {
                         val text = context.resources.getQuantityString(
@@ -262,20 +262,20 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
                     }
                 }
 
-                App.db.taskDao().insert(*newTasks.toTypedArray())
+                FlymApplication.db.taskDao().insert(*newTasks.toTypedArray())
             }
         }
 
         fun addEntriesToMobilize(entryIds: List<String>) {
             val newTasks = entryIds.map { Task(entryId = it) }
 
-            App.db.taskDao().insert(*newTasks.toTypedArray())
+            FlymApplication.db.taskDao().insert(*newTasks.toTypedArray())
         }
 
 
         private fun mobilizeAllEntries() {
 
-            val tasks = App.db.taskDao().mobilizeTasks
+            val tasks = FlymApplication.db.taskDao().mobilizeTasks
             val imgUrlsToDownload = mutableMapOf<String, List<String>>()
 
             val downloadPictures = shouldDownloadPictures()
@@ -283,16 +283,26 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
             for (task in tasks) {
                 var success = false
 
-                App.db.entryDao().findById(task.entryId)?.let { entry ->
+                FlymApplication.db.entryDao().findById(task.entryId)?.let { entry ->
                     entry.link?.let { link ->
                         try {
                             createCall(link).execute().use { response ->
                                 response.body?.byteStream()?.let { input ->
-                                    Readability4JExtended(link, Jsoup.parse(input, null, link)).parse().articleContent?.html()?.let {
+                                    Readability4JExtended(
+                                        link,
+                                        Jsoup.parse(input, null, link)
+                                    ).parse().articleContent?.html()?.let {
                                         val mobilizedHtml = HtmlUtils.improveHtmlContent(it, getBaseUrl(link))
 
                                         val entryDescription = entry.description
-                                        if (entryDescription == null || HtmlCompat.fromHtml(mobilizedHtml, HtmlCompat.FROM_HTML_MODE_LEGACY).length > HtmlCompat.fromHtml(entryDescription, HtmlCompat.FROM_HTML_MODE_LEGACY).length) { // If the retrieved text is smaller than the original one, then we certainly failed...
+                                        if (entryDescription == null || HtmlCompat.fromHtml(
+                                                mobilizedHtml,
+                                                HtmlCompat.FROM_HTML_MODE_LEGACY
+                                            ).length > HtmlCompat.fromHtml(
+                                                entryDescription,
+                                                HtmlCompat.FROM_HTML_MODE_LEGACY
+                                            ).length
+                                        ) { // If the retrieved text is smaller than the original one, then we certainly failed...
                                             if (downloadPictures) {
                                                 val imagesList = HtmlUtils.getImageURLs(mobilizedHtml)
                                                 if (imagesList.isNotEmpty()) {
@@ -308,9 +318,9 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
                                             success = true
 
                                             entry.mobilizedContent = mobilizedHtml
-                                            App.db.entryDao().update(entry)
+                                            FlymApplication.db.entryDao().update(entry)
 
-                                            App.db.taskDao().delete(task)
+                                            FlymApplication.db.taskDao().delete(task)
                                         }
                                     }
                                 }
@@ -323,10 +333,10 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
 
                 if (!success) {
                     if (task.numberAttempt + 1 > MAX_TASK_ATTEMPT) {
-                        App.db.taskDao().delete(task)
+                        FlymApplication.db.taskDao().delete(task)
                     } else {
                         task.numberAttempt += 1
-                        App.db.taskDao().update(task)
+                        FlymApplication.db.taskDao().update(task)
                     }
                 }
             }
@@ -336,19 +346,19 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
 
         private fun downloadAllImages() {
             if (shouldDownloadPictures()) {
-                val tasks = App.db.taskDao().downloadTasks
+                val tasks = FlymApplication.db.taskDao().downloadTasks
                 for (task in tasks) {
                     try {
                         downloadImage(task.entryId, task.imageLinkToDl)
 
                         // If we are here, everything is OK
-                        App.db.taskDao().delete(task)
+                        FlymApplication.db.taskDao().delete(task)
                     } catch (ignored: Exception) {
                         if (task.numberAttempt + 1 > MAX_TASK_ATTEMPT) {
-                            App.db.taskDao().delete(task)
+                            FlymApplication.db.taskDao().delete(task)
                         } else {
                             task.numberAttempt += 1
-                            App.db.taskDao().insert(task)
+                            FlymApplication.db.taskDao().insert(task)
                         }
                     }
                 }
@@ -367,9 +377,9 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
             var globalResult = 0
             val feeds: List<Feed>
             if (feedId == 0L) {
-                feeds = App.db.feedDao().allNonGroupFeeds
+                feeds = FlymApplication.db.feedDao().allNonGroupFeeds
             } else {
-                feeds = App.db.feedDao().allFeedsInGroup(feedId)
+                feeds = FlymApplication.db.feedDao().allFeedsInGroup(feedId)
             }
 
             for (feed in feeds) {
@@ -417,16 +427,17 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
             }
 
             if (feed != previousFeedState) {
-                App.db.feedDao().update(feed)
+                FlymApplication.db.feedDao().update(feed)
             }
 
             // First we remove the entries that we already have in db (no update to save data)
-            val existingIds = App.db.entryDao().idsForFeed(feed.id)
+            val existingIds = FlymApplication.db.entryDao().idsForFeed(feed.id)
             entries.removeAll { it.id in existingIds }
 
             // Second, we filter items with same title than one we already have
             if (context.getPrefBoolean(PrefConstants.REMOVE_DUPLICATES, true)) {
-                val existingTitles = App.db.entryDao().findAlreadyExistingTitles(entries.mapNotNull { it.title })
+                val existingTitles =
+                    FlymApplication.db.entryDao().findAlreadyExistingTitles(entries.mapNotNull { it.title })
                 entries.removeAll { it.title in existingTitles }
             }
 
@@ -485,7 +496,7 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
             }
 
             // Insert everything
-            App.db.entryDao().insert(*(entriesToInsert.toTypedArray()))
+            FlymApplication.db.entryDao().insert(*(entriesToInsert.toTypedArray()))
 
             if (feed.retrieveFullText) {
                 addEntriesToMobilize(entries.map { it.id })
@@ -498,7 +509,7 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
 
         private fun deleteOldEntries(keepDateBorderTime: Long, read: Long) {
             if (keepDateBorderTime > 0) {
-                App.db.entryDao().deleteOlderThan(keepDateBorderTime, read)
+                FlymApplication.db.entryDao().deleteOlderThan(keepDateBorderTime, read)
                 // Delete the cache files
                 deleteEntriesImagesCache(keepDateBorderTime)
             }
@@ -538,7 +549,7 @@ class FetcherService : IntentService(FetcherService::class.java.simpleName) {
             if (IMAGE_FOLDER_FILE.exists()) {
 
                 // We need to exclude favorite entries images to this cleanup
-                val favoriteIds = App.db.entryDao().favoriteIds
+                val favoriteIds = FlymApplication.db.entryDao().favoriteIds
 
                 IMAGE_FOLDER_FILE.listFiles()?.forEach { file ->
                     // If old file and not part of a favorite entry

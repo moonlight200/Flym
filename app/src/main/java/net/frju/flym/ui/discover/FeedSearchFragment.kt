@@ -17,7 +17,6 @@ import androidx.core.text.toSpannable
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import net.fred.feedex.R
-import net.frju.flym.App
 import net.frju.flym.GlideApp
 import net.frju.flym.data.entities.Feed
 import net.frju.flym.data.entities.SearchFeedResult
@@ -28,6 +27,7 @@ import org.jetbrains.anko.layoutInflater
 import org.jetbrains.anko.uiThread
 import org.json.JSONException
 import org.json.JSONObject
+import wtf.moonlight.flym.FlymApplication
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -118,9 +118,12 @@ class FeedSearchFragment : Fragment(), AdapterView.OnItemClickListener {
                                 if (url.isNotEmpty() && !FEED_SEARCH_BLACKLIST.contains(url)) {
                                     val feedTitle = HtmlCompat.fromHtml(entry.get(FEED_SEARCH_TITLE).toString(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
                                     val feedDescription = HtmlCompat.fromHtml(entry.get(FEED_SEARCH_DESC).toString(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
-                                    val feedIconUrl = if (entry.has(FEED_SEARCH_ICON_URL)) HtmlCompat.fromHtml(entry.get(FEED_SEARCH_ICON_URL).toString(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString() else null
-                                    val feedAdded = App.db.feedDao().findByLink(url) != null
-                                    val feedResult = SearchFeedResult(feedIconUrl, url, feedTitle, feedDescription, feedAdded)
+                                    val feedIconUrl = if (entry.has(FEED_SEARCH_ICON_URL)) HtmlCompat.fromHtml(
+                                        entry.get(FEED_SEARCH_ICON_URL).toString(), HtmlCompat.FROM_HTML_MODE_LEGACY
+                                    ).toString() else null
+                                    val feedAdded = FlymApplication.db.feedDao().findByLink(url) != null
+                                    val feedResult =
+                                        SearchFeedResult(feedIconUrl, url, feedTitle, feedDescription, feedAdded)
                                     Log.d(TAG, feedResult.toString())
                                     array.add(feedResult)
                                 }

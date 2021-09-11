@@ -19,22 +19,17 @@ package net.frju.flym.ui.feeds
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_feed_list_edit.view.*
 import net.fred.feedex.R
-import net.frju.flym.App
 import net.frju.flym.data.entities.Feed
 import net.frju.flym.ui.views.DragNDropListener
 import org.jetbrains.anko.doAsync
+import wtf.moonlight.flym.FlymApplication
 
 
 class FeedListEditFragment : Fragment() {
@@ -90,14 +85,14 @@ class FeedListEditFragment : Fragment() {
             }
         }
 
-        App.db.feedDao().observeAllWithCount.observe(this, Observer { nullableFeeds ->
+        FlymApplication.db.feedDao().observeAllWithCount.observe(this, Observer { nullableFeeds ->
             nullableFeeds?.let { feeds ->
                 feedGroups.clear()
 
                 val subFeedMap = feeds.groupBy { it.feed.groupId }
 
                 feedGroups.addAll(
-                        subFeedMap[null]?.map { FeedGroup(it, subFeedMap[it.feed.id].orEmpty()) }.orEmpty()
+                    subFeedMap[null]?.map { FeedGroup(it, subFeedMap[it.feed.id].orEmpty()) }.orEmpty()
                 )
 
                 feedAdapter.notifyParentDataSetChanged(true)
@@ -133,7 +128,7 @@ class FeedListEditFragment : Fragment() {
                                         title = groupName
                                         isGroup = true
                                     }
-                                    App.db.feedDao().insert(newGroup)
+                                    FlymApplication.db.feedDao().insert(newGroup)
                                 }
                             }
                         }
@@ -150,7 +145,7 @@ class FeedListEditFragment : Fragment() {
         fromFeed.displayPriority = newDisplayPriority
 
         doAsync {
-            App.db.feedDao().update(fromFeed)
+            FlymApplication.db.feedDao().update(fromFeed)
         }
     }
 }

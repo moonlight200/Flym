@@ -43,7 +43,6 @@ import kotlinx.android.synthetic.main.dialog_edit_feed.view.*
 import kotlinx.android.synthetic.main.fragment_entries.*
 import kotlinx.android.synthetic.main.view_main_drawer_header.*
 import net.fred.feedex.R
-import net.frju.flym.App
 import net.frju.flym.data.entities.Feed
 import net.frju.flym.data.entities.FeedWithCount
 import net.frju.flym.data.utils.PrefConstants
@@ -62,6 +61,7 @@ import net.frju.flym.utils.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk21.listeners.onClick
 import pub.devrel.easypermissions.EasyPermissions
+import wtf.moonlight.flym.FlymApplication
 import java.io.*
 import java.net.URL
 import java.util.*
@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(), MainNavigator, AnkoLogger {
             goToFeedSearch()
         }
 
-        App.db.feedDao().observeAllWithCount.observe(this@MainActivity, { nullableFeeds ->
+        FlymApplication.db.feedDao().observeAllWithCount.observe(this@MainActivity, { nullableFeeds ->
             nullableFeeds?.let { feeds ->
                 val newFeedGroups = mutableListOf<FeedGroup>()
 
@@ -167,9 +167,11 @@ class MainActivity : AppCompatActivity(), MainNavigator, AnkoLogger {
                             when (item.itemId) {
                                 R.id.mark_all_as_read -> doAsync {
                                     when {
-                                        feedWithCount.feed.id == Feed.ALL_ENTRIES_ID -> App.db.entryDao().markAllAsRead()
-                                        feedWithCount.feed.isGroup -> App.db.entryDao().markGroupAsRead(feedWithCount.feed.id)
-                                        else -> App.db.entryDao().markAsRead(feedWithCount.feed.id)
+                                        feedWithCount.feed.id == Feed.ALL_ENTRIES_ID -> FlymApplication.db.entryDao()
+                                            .markAllAsRead()
+                                        feedWithCount.feed.isGroup -> FlymApplication.db.entryDao()
+                                            .markGroupAsRead(feedWithCount.feed.id)
+                                        else -> FlymApplication.db.entryDao().markAsRead(feedWithCount.feed.id)
                                     }
                                 }
                                 R.id.edit_feed -> {
@@ -198,7 +200,7 @@ class MainActivity : AppCompatActivity(), MainNavigator, AnkoLogger {
                                                                 link = newLink
                                                             }
                                                         }
-                                                        App.db.feedDao().update(newFeed)
+                                                        FlymApplication.db.feedDao().update(newFeed)
                                                     }
                                                 }
                                             }
@@ -208,15 +210,19 @@ class MainActivity : AppCompatActivity(), MainNavigator, AnkoLogger {
                                 R.id.reorder -> startActivity<FeedListEditActivity>()
                                 R.id.delete -> {
                                     AlertDialog.Builder(this@MainActivity)
-                                            .setTitle(feedWithCount.feed.title)
-                                            .setMessage(if (feedWithCount.feed.isGroup) R.string.question_delete_group else R.string.question_delete_feed)
-                                            .setPositiveButton(android.R.string.ok) { _, _ ->
-                                                doAsync { App.db.feedDao().delete(feedWithCount.feed) }
-                                            }.setNegativeButton(android.R.string.cancel, null)
-                                            .show()
+                                        .setTitle(feedWithCount.feed.title)
+                                        .setMessage(if (feedWithCount.feed.isGroup) R.string.question_delete_group else R.string.question_delete_feed)
+                                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                                            doAsync { FlymApplication.db.feedDao().delete(feedWithCount.feed) }
+                                        }.setNegativeButton(android.R.string.cancel, null)
+                                        .show()
                                 }
-                                R.id.enable_full_text_retrieval -> doAsync { App.db.feedDao().enableFullTextRetrieval(feedWithCount.feed.id) }
-                                R.id.disable_full_text_retrieval -> doAsync { App.db.feedDao().disableFullTextRetrieval(feedWithCount.feed.id) }
+                                R.id.enable_full_text_retrieval -> doAsync {
+                                    FlymApplication.db.feedDao().enableFullTextRetrieval(feedWithCount.feed.id)
+                                }
+                                R.id.disable_full_text_retrieval -> doAsync {
+                                    FlymApplication.db.feedDao().disableFullTextRetrieval(feedWithCount.feed.id)
+                                }
                             }
                             true
                         }
@@ -458,8 +464,8 @@ class MainActivity : AppCompatActivity(), MainNavigator, AnkoLogger {
 
     private fun openInBrowser(entryId: String) {
         doAsync {
-            App.db.entryDao().findByIdWithFeed(entryId)?.entry?.link?.let { url ->
-                App.db.entryDao().markAsRead(listOf(entryId))
+            FlymApplication.db.entryDao().findByIdWithFeed(entryId)?.entry?.link?.let { url ->
+                FlymApplication.db.entryDao().markAsRead(listOf(entryId))
                 browse(url)
             }
         }
@@ -588,12 +594,12 @@ class MainActivity : AppCompatActivity(), MainNavigator, AnkoLogger {
         }
 
         if (feedList.isNotEmpty()) {
-            App.db.feedDao().insert(*feedList.toTypedArray())
+            FlymApplication.db.feedDao().insert(*feedList.toTypedArray())
         }
     }
 
     private fun exportOpml(opmlWriter: Writer) {
-        val feeds = App.db.feedDao().all.groupBy { it.groupId }
+        val feeds = FlymApplication.db.feedDao().all.groupBy { it.groupId }
 
         val opml = Opml().apply {
             feedType = OPML20Generator().type
