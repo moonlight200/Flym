@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object FlymModule {
+object FlymDbModule {
     @Provides
     @Singleton
     fun provideFlymDatabase(@ApplicationContext context: Context): FlymDatabase =
@@ -20,4 +20,8 @@ object FlymModule {
     @Provides
     @Singleton
     fun provideEntryDao(database: FlymDatabase) = database.entryDao()
+
+    @Provides
+    @Singleton
+    fun provideFeedDao(database: FlymDatabase) = database.feedDao()
 }

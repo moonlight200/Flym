@@ -20,15 +20,20 @@ package wtf.moonlight.flym
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import net.fred.feedex.BuildConfig
 import net.frju.flym.data.AppDatabase
 import net.frju.flym.data.utils.PrefConstants
 import net.frju.flym.utils.putPrefBoolean
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltAndroidApp
-class FlymApplication : Application() {
+class FlymApplication : Application(), Configuration.Provider {
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     companion object {
         @SuppressLint("StaticFieldLeak")
@@ -55,4 +60,9 @@ class FlymApplication : Application() {
 
         context.putPrefBoolean(PrefConstants.IS_REFRESHING, false) // init
     }
+
+    override fun getWorkManagerConfiguration() =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 }

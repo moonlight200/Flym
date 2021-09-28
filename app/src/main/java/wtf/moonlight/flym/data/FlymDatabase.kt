@@ -28,4 +28,6 @@ abstract class FlymDatabase : RoomDatabase() {
     }
 
     abstract fun entryDao(): EntryDao
+
+    abstract fun feedDao(): FeedDao
 }
