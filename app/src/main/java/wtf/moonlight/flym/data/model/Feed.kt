@@ -8,7 +8,9 @@ import kotlin.math.abs
 
 @Entity(
     tableName = "feeds",
-    ignoredColumns = ["initials\$delegate"]
+    ignoredColumns = [
+        "initials\$delegate" // Generated property
+    ]
 )
 data class Feed(
     @PrimaryKey(autoGenerate = true)
@@ -38,7 +40,7 @@ data class Feed(
             0xffa1887f,
             0xff90a4ae
         )
-        private val DELIMITERS = arrayOf(" ", "-", "&", ":", "|")
+        private val DELIMITERS = arrayOf(" ", "-", "&", ":", "|", "\"")
     }
 
     val color: Long
