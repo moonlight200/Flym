@@ -18,8 +18,12 @@ fun SyndEntry.toFlymEntry(feed: Feed, fetchDate: Date = Date()): Entry {
         feedId = feed.id,
         link = link,
         title = title?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY).toString() },
-        description = contents?.joinToString(separator = "<hr/>") { it.value }
-            ?: description?.value,
+        description = contents?.let { contents ->
+            if (contents.isNotEmpty())
+                contents.joinToString(separator = "<hr/>") { content -> content.value }
+            else
+                description?.value
+        },
         author = author,
         imageLink = imageLink,
         fetchDate = fetchDate,

@@ -24,9 +24,6 @@ object HtmlUtils {
 
 fun String.toBaseUrl(): String? =
     this.toHttpUrlOrNull()
-        ?.newBuilder()
-        ?.encodedPath("")
-        ?.encodedQuery("")
-        ?.encodedFragment("")
+        ?.newBuilder("/")
         ?.build()
         ?.toString()

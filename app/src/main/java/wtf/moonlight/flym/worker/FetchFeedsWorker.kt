@@ -32,25 +32,30 @@ class FetchFeedsWorker @AssistedInject constructor(
 ) : Worker(context, workerParams) {
 
     override fun doWork(): Result {
+        Timber.d("Starting to fetch feeds")
         for (feed in feedDao.getAllFeeds()) {
             if (isStopped) {
+                Timber.i("Stopping to fetch feeds")
                 return Result.retry()
             }
 
             fetchFeed(feed)
         }
 
+        Timber.d("Done fetching all feeds")
         return Result.success()
     }
 
     private fun fetchFeed(feed: Feed) {
+        Timber.d("Fetching feed (id: ${feed.id}, url: ${feed.link})")
         loadAndParseFeed(feed)
             .onFailure {
                 // TODO process loading/parsing failure
-                Timber.e(it, "Failed to refresh feed (id: ${feed.id}, url: ${feed.link})")
+                Timber.e(it, "Failed to fetch feed (id: ${feed.id}, url: ${feed.link})")
             }
             .onSuccess { (updatedFeed, entries) ->
                 filterEntries(updatedFeed, entries)
+                Timber.v("Found ${entries.size} new entries for feed ${feed.id}")
 
                 val improvedEntries = entries.map { improveEntryContent(it) }
                 entryDao.insertAll(improvedEntries)
@@ -82,6 +87,7 @@ class FetchFeedsWorker @AssistedInject constructor(
                 ?.toMutableList()
                 ?: ArrayList()
 
+            Timber.v("Found ${entries.size} entries in feed ${feed.id}")
             return kotlin.Result.success(updatedFeed to entries)
         } catch (exception: Exception) {
             return kotlin.Result.failure(exception)
