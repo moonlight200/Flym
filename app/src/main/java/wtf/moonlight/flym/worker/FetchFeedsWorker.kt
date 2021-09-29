@@ -23,7 +23,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
 @HiltWorker
-class RefreshFeedsWorker @AssistedInject constructor(
+class FetchFeedsWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val feedDao: FeedDao,
@@ -33,32 +33,33 @@ class RefreshFeedsWorker @AssistedInject constructor(
 
     override fun doWork(): Result {
         for (feed in feedDao.getAllFeeds()) {
-            refreshFeed(feed)
+            if (isStopped) {
+                return Result.retry()
+            }
+
+            fetchFeed(feed)
         }
 
         return Result.success()
     }
 
-    private fun refreshFeed(feed: Feed) {
-        loadFeed(feed)
+    private fun fetchFeed(feed: Feed) {
+        loadAndParseFeed(feed)
             .onFailure {
                 // TODO process loading/parsing failure
+                Timber.e(it, "Failed to refresh feed (id: ${feed.id}, url: ${feed.link})")
             }
             .onSuccess { (updatedFeed, entries) ->
-                // Update feed if necessary
-                if (updatedFeed != feed) {
-                    feedDao.updateFeed(updatedFeed)
-                }
-
                 filterEntries(updatedFeed, entries)
 
                 val improvedEntries = entries.map { improveEntryContent(it) }
                 entryDao.insertAll(improvedEntries)
+                feedDao.updateFeed(updatedFeed)
                 // TODO start downloading images (feed + new entries)
             }
     }
 
-    private fun loadFeed(feed: Feed): kotlin.Result<Pair<Feed, MutableList<Entry>>> {
+    private fun loadAndParseFeed(feed: Feed): kotlin.Result<Pair<Feed, MutableList<Entry>>> {
         try {
             val response = httpClient.newCall(
                 Request.Builder()
@@ -83,7 +84,6 @@ class RefreshFeedsWorker @AssistedInject constructor(
 
             return kotlin.Result.success(updatedFeed to entries)
         } catch (exception: Exception) {
-            Timber.e(exception, "Failed to refresh feed (id: ${feed.id}, url: ${feed.link})")
             return kotlin.Result.failure(exception)
         }
     }
