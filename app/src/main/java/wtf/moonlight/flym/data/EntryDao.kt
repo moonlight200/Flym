@@ -6,9 +6,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import wtf.moonlight.flym.data.model.Entry
+import wtf.moonlight.flym.data.model.EntryWithFeed
 
 @Dao
 interface EntryDao {
+    @Query("SELECT entries.*, feeds.* FROM entries LEFT JOIN feeds ON entries.feed_id = feeds.feed_id ORDER BY entries.pub_date DESC")
+    fun observeAllEntries(): LiveData<List<EntryWithFeed>>
+
     @Query("SELECT * FROM entries WHERE feed_id = :feedId AND entry_id = :entryId")
     fun observeEntry(feedId: Long, entryId: String): LiveData<Entry>
 

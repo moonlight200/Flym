@@ -20,11 +20,13 @@ import androidx.compose.ui.unit.dp
 import net.fred.feedex.R
 import wtf.moonlight.flym.data.model.EntryCardData
 import wtf.moonlight.flym.ui.theme.FlymTheme
+import java.util.*
 
 @Composable
 fun EntryCard(
     entry: EntryCardData,
     modifier: Modifier = Modifier,
+    formatPublication: (Date) -> String = { date -> date.toString() },
     onCardClicked: (feedId: Long, entryId: String) -> Unit = { _, _ -> },
     onFavoriteChanged: (feedId: Long, entryId: String, favorite: Boolean) -> Unit = { _, _, _ -> }
 ) {
@@ -33,10 +35,10 @@ fun EntryCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier.clickable { onCardClicked(entry.feedId, entry.entryId) },
         ) {
-            if (entry.imageLink != null) {
+            if (entry.imageLink != null && false) {
                 // TODO show image
                 Box(modifier = Modifier.size(96.dp)) {
-
+                    Text(text = "img")
                 }
             } else {
                 EntryAltImage(
@@ -96,7 +98,7 @@ fun EntryCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = entry.publishTime,
+                        text = formatPublication(entry.publicationDate),
                         maxLines = 1,
                         style = MaterialTheme.typography.overline
                     )
@@ -150,7 +152,7 @@ fun EntryCardPreview() {
                 feedLetters = null,
                 title = "Some entry, that is part of the feed, has been published",
                 feedName = "News Site with a long title",
-                publishTime = "Sep 7, 2021 14:23",
+                publicationDate = Date(1631017380L),
                 feedColor = 0xff9575cd,
                 read = false,
                 favorite = false
@@ -171,7 +173,7 @@ fun EntryCardPreviewDark() {
                 feedLetters = null,
                 title = "Some entry, that is part of the feed, has been published",
                 feedName = "News Site with a long title",
-                publishTime = "Sep 7, 2021 14:23",
+                publicationDate = Date(1631017380L),
                 feedColor = 0xff9575cd,
                 read = false,
                 favorite = false

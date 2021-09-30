@@ -28,6 +28,10 @@
 
     <style name="AppTheme.ActionBar.Details" parent="AppTheme.ActionBar" />
 
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -93,7 +97,7 @@
         <item name="colorBackground">@color/colorBackgroundBlack</item>
     </style>
 
-    <style name="AppThemeBlack.ActionBar.Details" parent="AppThemeBlack.ActionBar"></style>
+    <style name="AppThemeBlack.ActionBar.Details" parent="AppThemeBlack.ActionBar" />
 
     <style name="AppThemeBlack.NoActionBar">
         <item name="windowActionBar">false</item>

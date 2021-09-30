@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "94c82b75ccd65fb5c31983f2ec108cce",
+    "identityHash": "83429b2dee8666ea04f8ff32e2dda3e5",
     "entities": [
       {
         "tableName": "feeds",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feed_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `link` TEXT NOT NULL, `title` TEXT, `image_link` TEXT, `retrieve_full_text` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feed_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `feed_link` TEXT NOT NULL, `feed_title` TEXT, `image_link` TEXT, `retrieve_full_text` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -16,13 +16,13 @@
           },
           {
             "fieldPath": "link",
-            "columnName": "link",
+            "columnName": "feed_link",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "title",
-            "columnName": "title",
+            "columnName": "feed_title",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -151,7 +151,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '94c82b75ccd65fb5c31983f2ec108cce')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '83429b2dee8666ea04f8ff32e2dda3e5')"
     ]
   }
 }

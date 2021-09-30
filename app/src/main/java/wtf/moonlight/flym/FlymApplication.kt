@@ -22,12 +22,15 @@ import android.app.Application
 import android.content.Context
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.HiltAndroidApp
 import net.fred.feedex.BuildConfig
 import net.frju.flym.data.AppDatabase
 import net.frju.flym.data.utils.PrefConstants
 import net.frju.flym.utils.putPrefBoolean
 import timber.log.Timber
+import wtf.moonlight.flym.worker.FetchFeedsWorker
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -54,6 +57,8 @@ class FlymApplication : Application(), Configuration.Provider {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
+
+        WorkManager.getInstance(this).enqueue(OneTimeWorkRequestBuilder<FetchFeedsWorker>().build())
 
         context = applicationContext
         db = AppDatabase.createDatabase(context)

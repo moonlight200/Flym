@@ -1,6 +1,5 @@
 package wtf.moonlight.flym.data.model
 
-import android.content.Context
 import androidx.room.Embedded
 import androidx.room.Relation
 
@@ -13,7 +12,7 @@ data class EntryWithFeed(
     )
     val feed: Feed
 ) {
-    fun toCardData(context: Context): EntryCardData =
+    fun toCardData(): EntryCardData =
         EntryCardData(
             feedId = feed.id,
             entryId = entry.id,
@@ -21,7 +20,7 @@ data class EntryWithFeed(
             feedLetters = feed.initials,
             title = entry.title,
             feedName = feed.title ?: "",
-            publishTime = entry.getReadablePublicationDate(context),
+            publicationDate = entry.publicationDate,
             feedColor = feed.color,
             read = entry.read,
             favorite = entry.favorite

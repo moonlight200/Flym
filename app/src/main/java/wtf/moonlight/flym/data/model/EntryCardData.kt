@@ -1,5 +1,7 @@
 package wtf.moonlight.flym.data.model
 
+import java.util.*
+
 data class EntryCardData(
     val feedId: Long,
     val entryId: String,
@@ -7,7 +9,7 @@ data class EntryCardData(
     val feedLetters: String? = null,
     val title: String? = null,
     val feedName: String,
-    val publishTime: String,
+    val publicationDate: Date,
     val feedColor: Long,
     val read: Boolean,
     val favorite: Boolean
