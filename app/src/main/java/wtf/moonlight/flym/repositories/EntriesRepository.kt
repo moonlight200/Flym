@@ -5,4 +5,5 @@ import wtf.moonlight.flym.data.model.EntryCardData
 
 interface EntriesRepository {
     fun getAllEntries(): LiveData<List<EntryCardData>>
+    suspend fun setFavoriteStatus(feedId: Long, entryId: String, favorite: Boolean)
 }

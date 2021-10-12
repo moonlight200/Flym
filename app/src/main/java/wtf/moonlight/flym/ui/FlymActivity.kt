@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
+import net.fred.feedex.R
+import timber.log.Timber
 import wtf.moonlight.flym.data.model.EntryCardData
 import wtf.moonlight.flym.ui.compose.EntryCard
 import wtf.moonlight.flym.ui.theme.FlymTheme
@@ -38,7 +40,14 @@ class FlymActivity : ComponentActivity() {
                     EntryList(
                         entries = entries,
                         contentPadding = innerPadding,
-                        formatPublication = this::formatPublicationDate
+                        formatPublication = this::formatPublicationDate,
+                        onEntryClicked = { feedId, entryId ->
+                            // TODO navigate to feed
+                            Timber.d("Navigating to %d, %s", feedId, entryId)
+                        },
+                        onFavoriteChanged = { feedId, entryId, favorite ->
+                            viewModel.setFavorite(feedId, entryId, favorite)
+                        }
                     )
                 }
             }
@@ -59,7 +68,9 @@ fun EntryList(
     entries: List<EntryCardData>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    formatPublication: (Date) -> String = { date -> date.toString() }
+    formatPublication: (Date) -> String = { date -> date.toString() },
+    onEntryClicked: (feedId: Long, entryId: String) -> Unit = { _, _ -> },
+    onFavoriteChanged: (feedId: Long, entryId: String, favorite: Boolean) -> Unit = { _, _, _ -> }
 ) {
     LazyColumn(
         modifier = modifier,
@@ -72,21 +83,40 @@ fun EntryList(
         ) { entry ->
             EntryCard(
                 entry = entry,
-                formatPublication = formatPublication
+                formatPublication = formatPublication,
+                onCardClicked = onEntryClicked,
+                onFavoriteChanged = onFavoriteChanged
             )
         }
     }
 }
 
+@Preview(
+    name = "Entry List",
+    showBackground = true
+)
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
+fun EntryListPreview() {
+    val entries = listOf(
+        EntryCardData(0, "0-0", null, "SF", "First entry", "Sample feed", Date(), feedColor = 0x0L, false, false),
+        EntryCardData(0, "0-1", null, "SF", "Second entry", "Sample feed", Date(), feedColor = 0x0L, true, false),
+        EntryCardData(0, "0-2", null, "SF", "Third entry", "Sample feed", Date(), feedColor = 0x0L, false, true),
+        EntryCardData(0, "0-3", null, "SF", "Fourth entry", "Sample feed", Date(), feedColor = 0x0L, true, true),
+        EntryCardData(
+            1,
+            "1-0",
+            null,
+            "AF",
+            "Entry of another feed with a title that is longer than that of the others",
+            "Another feed",
+            Date(),
+            feedColor = 0xff0000L,
+            false,
+            false
+        )
+    )
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
     FlymTheme {
-        Greeting("Android")
+        EntryList(entries)
     }
 }

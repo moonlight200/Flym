@@ -35,7 +35,7 @@ fun EntryCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier.clickable { onCardClicked(entry.feedId, entry.entryId) },
         ) {
-            if (entry.imageLink != null && false) {
+            if (entry.imageLink != null) {
                 // TODO show image
                 Box(modifier = Modifier.size(96.dp)) {
                     Text(text = "img")
@@ -49,7 +49,7 @@ fun EntryCard(
             Column(
                 modifier = Modifier
                     .height(96.dp)
-                    .alpha(if (entry.read) 0.6f else 1.0f),
+                    .alpha(if (entry.read) 0.58f else 1.0f),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(

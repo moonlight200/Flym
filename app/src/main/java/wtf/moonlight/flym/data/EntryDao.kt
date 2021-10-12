@@ -27,4 +27,7 @@ interface EntryDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE) // We don't want to overwrite the favorite status
     fun insertAll(entries: List<Entry>)
+
+    @Query("UPDATE entries SET favorite = :favorite WHERE feed_id = :feedId AND entry_id = :entryId")
+    suspend fun updateFavorite(feedId: Long, entryId: String, favorite: Boolean)
 }

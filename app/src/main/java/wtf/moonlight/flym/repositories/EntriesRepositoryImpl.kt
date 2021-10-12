@@ -15,4 +15,8 @@ class EntriesRepositoryImpl @Inject constructor(
         ) { entryList ->
             entryList.map { entryWithFeed -> entryWithFeed.toCardData() }
         }
+
+    override suspend fun setFavoriteStatus(feedId: Long, entryId: String, favorite: Boolean) {
+        entriesDao.updateFavorite(feedId, entryId, favorite)
+    }
 }
