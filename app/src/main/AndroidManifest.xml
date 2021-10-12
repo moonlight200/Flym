@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name="wtf.moonlight.flym.ui.FlymActivity"
+            android:name="wtf.moonlight.flym.ui.entries.FlymActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">

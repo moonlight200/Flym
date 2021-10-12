@@ -1,4 +1,4 @@
-package wtf.moonlight.flym.ui
+package wtf.moonlight.flym.ui.entries
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

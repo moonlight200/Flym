@@ -1,4 +1,4 @@
-package wtf.moonlight.flym.ui
+package wtf.moonlight.flym.ui.entries
 
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -6,16 +6,23 @@ import android.text.format.DateUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,8 +42,24 @@ class FlymActivity : ComponentActivity() {
         setContent {
             FlymTheme {
                 val entries by viewModel.entries.observeAsState(emptyList())
+                var filter by remember { mutableStateOf(EntriesViewFilter.ALL) }
 
-                Scaffold { innerPadding ->
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(text = getString(R.string.app_name))
+                            },
+                            elevation = 8.dp
+                        )
+                    },
+                    bottomBar = {
+                        BottomEntryFilters(
+                            activeFilter = filter,
+                            onFilterChange = { f -> filter = f }
+                        )
+                    }
+                ) { innerPadding ->
                     EntryList(
                         entries = entries,
                         contentPadding = innerPadding,
@@ -91,6 +114,51 @@ fun EntryList(
     }
 }
 
+@Composable
+fun BottomEntryFilters(
+    activeFilter: EntriesViewFilter = EntriesViewFilter.ALL,
+    onFilterChange: (filter: EntriesViewFilter) -> Unit = { _ -> }
+) {
+    BottomAppBar(
+        elevation = 8.dp
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (viewFilter in EntriesViewFilter.values()) {
+                val title = stringResource(id = viewFilter.title)
+                val alpha: Float by animateFloatAsState(targetValue = if (viewFilter == activeFilter) 1.0f else 0.54f)
+                val scale: Float by animateFloatAsState(targetValue = if (viewFilter == activeFilter) 1.0f else 0.9f)
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .clickable(
+                            role = Role.Button,
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = rememberRipple(bounded = false, radius = 48.dp)
+                        ) { onFilterChange(viewFilter) }
+                        .alpha(alpha = alpha)
+                        .scale(scale = scale)
+                ) {
+                    Icon(
+                        painter = painterResource(id = viewFilter.icon),
+                        contentDescription = title
+                    )
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.caption,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Preview(
     name = "Entry List",
     showBackground = true
@@ -118,5 +186,16 @@ fun EntryListPreview() {
 
     FlymTheme {
         EntryList(entries)
+    }
+}
+
+@Preview(
+    name = "Entry Filters",
+    showBackground = true
+)
+@Composable
+fun EntryFiltersPreview() {
+    FlymTheme {
+        BottomEntryFilters()
     }
 }
