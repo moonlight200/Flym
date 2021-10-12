@@ -17,7 +17,7 @@ data class Feed(
     @ColumnInfo(name = "feed_id") val id: Long = 0L,
     @ColumnInfo(name = "feed_link") val link: String = "",
     @ColumnInfo(name = "feed_title") val title: String? = null,
-    @ColumnInfo(name = "image_link") val imageLink: String? = null,
+    @ColumnInfo(name = "feed_image_link") val imageLink: String? = null,
     @Embedded val settings: FeedSettings = FeedSettings()
 ) {
     companion object {

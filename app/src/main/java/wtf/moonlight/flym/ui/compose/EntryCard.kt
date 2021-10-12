@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import net.fred.feedex.R
 import wtf.moonlight.flym.data.model.EntryCardData
 import wtf.moonlight.flym.ui.theme.FlymTheme
@@ -38,7 +39,7 @@ fun EntryCard(
             if (entry.imageLink != null) {
                 // TODO show image
                 Box(modifier = Modifier.size(96.dp)) {
-                    Text(text = "img")
+                    Text(text = entry.imageLink, fontSize = 12.sp)
                 }
             } else {
                 EntryAltImage(
@@ -170,13 +171,13 @@ fun EntryCardPreviewDark() {
                 1L,
                 "abc",
                 imageLink = null,
-                feedLetters = null,
+                feedLetters = "NS",
                 title = "Some entry, that is part of the feed, has been published",
                 feedName = "News Site with a long title",
                 publicationDate = Date(1631017380L),
                 feedColor = 0xff9575cd,
                 read = false,
-                favorite = false
+                favorite = true
             )
         )
     }
