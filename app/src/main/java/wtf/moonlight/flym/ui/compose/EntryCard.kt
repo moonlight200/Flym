@@ -5,6 +5,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -42,7 +43,8 @@ fun EntryCard(
                     Text(text = entry.imageLink, fontSize = 12.sp)
                 }
             } else {
-                EntryAltImage(
+                ItemAltImage(
+                    modifier = Modifier.size(96.dp),
                     text = entry.feedLetters,
                     color = Color(entry.feedColor)
                 )
@@ -115,7 +117,8 @@ fun EntryAltImage(text: String?, color: Color, modifier: Modifier = Modifier) {
         color = color,
         modifier = modifier
             .size(96.dp)
-            .aspectRatio(1f)
+            .aspectRatio(1f),
+        shape = CircleShape
     ) {
         Box(
             modifier = Modifier.padding(4.dp),

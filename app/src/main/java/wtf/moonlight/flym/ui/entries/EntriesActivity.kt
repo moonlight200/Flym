@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -26,6 +27,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import net.fred.feedex.R
 import timber.log.Timber
 import wtf.moonlight.flym.data.model.EntryCardData
@@ -43,35 +45,58 @@ class FlymActivity : ComponentActivity() {
             FlymTheme {
                 val entries by viewModel.entries.observeAsState(emptyList())
                 var filter by remember { mutableStateOf(EntriesViewFilter.ALL) }
+                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+                val scope = rememberCoroutineScope()
 
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(text = getString(R.string.app_name))
+                ModalDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        DrawerContent()
+                    }
+                ) {
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                navigationIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                drawerState.open()
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_menu_24dp),
+                                            contentDescription = "Navigation"
+                                        )
+                                    }
+                                },
+                                title = {
+                                    Text(text = getString(R.string.app_name))
+                                },
+                                elevation = 8.dp
+                            )
+                        },
+                        bottomBar = {
+                            BottomEntryFilters(
+                                activeFilter = filter,
+                                onFilterChange = { f -> filter = f }
+                            )
+                        }
+                    ) { innerPadding ->
+                        EntryList(
+                            entries = entries,
+                            contentPadding = innerPadding,
+                            formatPublication = this::formatPublicationDate,
+                            onEntryClicked = { feedId, entryId ->
+                                // TODO navigate to feed
+                                Timber.d("Navigating to %d, %s", feedId, entryId)
                             },
-                            elevation = 8.dp
-                        )
-                    },
-                    bottomBar = {
-                        BottomEntryFilters(
-                            activeFilter = filter,
-                            onFilterChange = { f -> filter = f }
+                            onFavoriteChanged = { feedId, entryId, favorite ->
+                                viewModel.setFavorite(feedId, entryId, favorite)
+                            }
                         )
                     }
-                ) { innerPadding ->
-                    EntryList(
-                        entries = entries,
-                        contentPadding = innerPadding,
-                        formatPublication = this::formatPublicationDate,
-                        onEntryClicked = { feedId, entryId ->
-                            // TODO navigate to feed
-                            Timber.d("Navigating to %d, %s", feedId, entryId)
-                        },
-                        onFavoriteChanged = { feedId, entryId, favorite ->
-                            viewModel.setFavorite(feedId, entryId, favorite)
-                        }
-                    )
                 }
             }
         }
@@ -83,6 +108,18 @@ class FlymActivity : ComponentActivity() {
             append(' ')
         }
         append(DateFormat.getTimeFormat(this@FlymActivity).format(date))
+    }
+}
+
+@Composable
+fun DrawerContent() {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.header_background),
+            contentDescription = null
+        )
     }
 }
 
