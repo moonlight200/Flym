@@ -137,7 +137,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="net.frju.flym.fileprovider"
+            android:authorities="wtf.moonlight.flym.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
