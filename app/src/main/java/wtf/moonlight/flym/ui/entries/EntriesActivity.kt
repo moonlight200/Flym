@@ -1,5 +1,6 @@
 package wtf.moonlight.flym.ui.entries
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.text.format.DateUtils
@@ -32,6 +33,7 @@ import net.fred.feedex.R
 import timber.log.Timber
 import wtf.moonlight.flym.data.model.EntryCardData
 import wtf.moonlight.flym.ui.compose.EntryCard
+import wtf.moonlight.flym.ui.entrydetail.EntryDetailActivity
 import wtf.moonlight.flym.ui.theme.FlymTheme
 import java.util.*
 
@@ -91,6 +93,12 @@ class FlymActivity : ComponentActivity() {
                             onEntryClicked = { feedId, entryId ->
                                 // TODO navigate to feed
                                 Timber.d("Navigating to %d, %s", feedId, entryId)
+                                startActivity(
+                                    Intent(this, EntryDetailActivity::class.java).apply {
+                                        putExtra(EntryDetailActivity.EXTRA_FEED_ID, feedId)
+                                        putExtra(EntryDetailActivity.EXTRA_ENTRY_ID, entryId)
+                                    }
+                                )
                             },
                             onFavoriteChanged = { feedId, entryId, favorite ->
                                 viewModel.setFavorite(feedId, entryId, favorite)
